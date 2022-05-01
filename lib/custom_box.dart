@@ -11,23 +11,43 @@ class CustomBox extends LeafRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderCustomBox(
+    return RenderCustomBox(
       color: color,
       flex: flex,
     );
   }
+
+  @override
+  void updateRenderObject(
+      BuildContext context, covariant RenderCustomBox renderObject) {
+    renderObject
+      ..color = color
+      ..flex = flex;
+  }
 }
 
-class _RenderCustomBox extends RenderBox {
-  _RenderCustomBox({required Color color, required int flex})
+class RenderCustomBox extends RenderBox {
+  RenderCustomBox({required Color color, required int flex})
       : _color = color,
         _flex = flex;
 
   int get flex => _flex;
-  final int _flex;
+  int _flex;
+  set flex(int value) {
+    if (_flex == value) return;
+    assert(value >= 0);
+    _flex = value;
+    parentData?.flex = value;
+    markParentNeedsLayout();
+  }
 
   Color get color => _color;
-  final Color _color;
+  Color _color;
+  set color(Color color) {
+    if (color == _color) return;
+    _color = color;
+    markNeedsPaint();
+  }
 
   @override
   CustomColumnParentData? get parentData {

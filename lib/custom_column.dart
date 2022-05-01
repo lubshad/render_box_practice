@@ -4,12 +4,44 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 class CustomColumn extends MultiChildRenderObjectWidget {
-  CustomColumn({List<Widget> children = const [], Key? key})
+  CustomColumn(
+      {List<Widget> children = const [],
+      Key? key,
+      this.alignment = CustomColumnAlignment.center})
       : super(key: key, children: children);
+
+  final CustomColumnAlignment alignment;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderCustomColumn();
+    return RenderCustomColumn(
+      alignment: alignment,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+      BuildContext context, covariant RenderCustomColumn renderObject) {
+    renderObject.alignment = alignment;
+  }
+}
+
+enum CustomColumnAlignment {
+  center,
+  start,
+  end,
+}
+
+extension CustomAlignmentExtension on CustomColumnAlignment {
+  double getDx(double childWidth, double parentWidth) {
+    switch (this) {
+      case CustomColumnAlignment.center:
+        return (parentWidth - childWidth) / 2;
+      case CustomColumnAlignment.start:
+        return 0;
+      case CustomColumnAlignment.end:
+        return parentWidth - childWidth;
+    }
   }
 }
 
@@ -18,10 +50,21 @@ class CustomColumnParentData extends ContainerBoxParentData<RenderBox> {
   int? flex;
 }
 
-class _RenderCustomColumn extends RenderBox
+class RenderCustomColumn extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, CustomColumnParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, CustomColumnParentData> {
+  RenderCustomColumn({required CustomColumnAlignment alignment})
+      : _alignment = alignment;
+
+  CustomColumnAlignment get alignment => _alignment;
+  CustomColumnAlignment _alignment;
+  set alignment(CustomColumnAlignment value) {
+    if (_alignment == value) return;
+    _alignment = value;
+    markNeedsLayout();
+  }
+
   @override
   void setupParentData(covariant RenderObject child) {
     if (child.parentData is! CustomColumnParentData) {
@@ -93,6 +136,68 @@ class _RenderCustomColumn extends RenderBox
     return Size(width, height);
   }
 
+
+  @override
+  double? computeDistanceToActualBaseline(TextBaseline baseline) {
+    return defaultComputeDistanceToHighestActualBaseline(baseline);
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    RenderBox? child = firstChild;
+    double height = 0;
+    while (child != null) {
+      final parentData = child.parentData as CustomColumnParentData;
+
+      height += child.getMaxIntrinsicHeight(width);
+
+      child = parentData.nextSibling;
+    }
+    return height;
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    RenderBox? child = firstChild;
+    double height = 0;
+    while (child != null) {
+      final parentData = child.parentData as CustomColumnParentData;
+
+      height += child.getMinIntrinsicHeight(width);
+
+      child = parentData.nextSibling;
+    }
+    return height;
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    RenderBox? child = firstChild;
+    double width = 0;
+    while (child != null) {
+      final parentData = child.parentData as CustomColumnParentData;
+
+      width = max(width, child.getMaxIntrinsicWidth(height));
+
+      child = parentData.nextSibling;
+    }
+    return width;
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) {
+    RenderBox? child = firstChild;
+    double width = 0;
+    while (child != null) {
+      final parentData = child.parentData as CustomColumnParentData;
+
+      width = max(width, child.getMinIntrinsicWidth(height));
+
+      child = parentData.nextSibling;
+    }
+    return width;
+  }
+
   @override
   void performLayout() {
     size = _preformLayout(constraints: constraints, dry: false);
@@ -103,7 +208,9 @@ class _RenderCustomColumn extends RenderBox
     while (child != null) {
       final parentData = child.parentData as CustomColumnParentData;
 
-      parentData.offset = Offset(0, childOffset.dy);
+      final childPositionDx = alignment.getDx(child.size.width, size.width);
+
+      parentData.offset = Offset(childPositionDx, childOffset.dy);
       childOffset += Offset(0, child.size.height);
 
       child = parentData.nextSibling;

@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
       ),
       home: Scaffold(
         body: CustomColumn(
+          alignment: CustomColumnAlignment.end,
           children: const [
             CustomExpanded(
               flex: 1,
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            CustomBox(flex: 5, color: Colors.red),
+            CustomBox(flex: 1, color: Colors.red),
           ],
         ),
       ),
