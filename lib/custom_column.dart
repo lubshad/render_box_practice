@@ -136,7 +136,6 @@ class RenderCustomColumn extends RenderBox
     return Size(width, height);
   }
 
-
   @override
   double? computeDistanceToActualBaseline(TextBaseline baseline) {
     return defaultComputeDistanceToHighestActualBaseline(baseline);
@@ -154,6 +153,11 @@ class RenderCustomColumn extends RenderBox
       child = parentData.nextSibling;
     }
     return height;
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return defaultHitTestChildren(result, position: position);
   }
 
   @override
