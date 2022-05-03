@@ -51,7 +51,7 @@ class RenderCustomBox extends RenderBox {
         _rotation = rotation,
         _onTap = onTap;
 
-  late final TapGestureRecognizer _tapGestureRecognizer;
+  late TapGestureRecognizer _tapGestureRecognizer;
 
   set onTap(VoidCallback? value) {
     if (onTap == value) return;
@@ -67,6 +67,15 @@ class RenderCustomBox extends RenderBox {
       _rotation = value;
       markNeedsPaint();
     }
+  }
+
+  @override
+  void describeSemanticsConfiguration(SemanticsConfiguration config) {
+    config
+      ..isButton = true
+      ..hint = 'Simantics Testing'
+      ..onTap = onTap
+      ..textDirection = TextDirection.ltr;
   }
 
   double _rotation;
@@ -100,11 +109,10 @@ class RenderCustomBox extends RenderBox {
 
   @override
   void attach(covariant PipelineOwner owner) {
-    super.attach(owner);
-
     parentData?.flex = flex;
     _tapGestureRecognizer = TapGestureRecognizer(debugOwner: this)
       ..onTap = onTap;
+    super.attach(owner);
   }
 
   @override

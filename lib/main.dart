@@ -5,6 +5,8 @@ import 'package:render_object/custom_box.dart';
 import 'package:render_object/custom_column.dart';
 import 'package:render_object/custom_spacer.dart';
 
+import 'custom_proxy_box.dart';
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
@@ -32,43 +34,52 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         primarySwatch: Colors.blue,
       ),
       home: Scaffold(
-        body: CustomColumn(
-          alignment: CustomColumnAlignment.end,
+        body: Stack(
           children: [
-            const CustomExpanded(
-              flex: 1,
-              child: SizedBox(),
+            CustomColumn(
+              alignment: CustomColumnAlignment.end,
+              children: [
+                const CustomExpanded(
+                  flex: 1,
+                  child: SizedBox(),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    "A Defenitive guide to\n" "render objects in flutter",
+                    style: TextStyle(fontSize: 32),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    "Created by creativecreator",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      return CustomBox(
+                          onTap: () {
+                            if (_controller.isAnimating) {
+                              _controller.stop();
+                            } else {
+                              _controller.repeat();
+                            }
+                          },
+                          flex: 1,
+                          color: Colors.blue,
+                          rotation: _controller.value * 2 * pi);
+                    }),
+              ],
             ),
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                "A Defenitive guide to\n" "render objects in flutter",
-                style: TextStyle(fontSize: 32),
-                textAlign: TextAlign.center,
+            CustomProxyBox(
+              child: Container(
+                color: Colors.blue,
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                "Created by creativecreator",
-                textAlign: TextAlign.center,
-              ),
-            ),
-            AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return CustomBox(
-                      onTap: () {
-                        if (_controller.isAnimating) {
-                          _controller.stop();
-                        } else {
-                          _controller.repeat();
-                        }
-                      },
-                      flex: 1,
-                      color: Colors.blue,
-                      rotation: _controller.value * 2 * pi);
-                }),
+            )
           ],
         ),
       ),
